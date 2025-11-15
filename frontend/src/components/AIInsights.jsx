@@ -12,8 +12,9 @@ function AIInsights() {
 
   const fetchInsights = async (retries = 3) => {
     try {
+      const API_BASE = import.meta.env.PROD ? '/api' : 'http://localhost:3001/api'
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:3001/api/ai/insights', {
+      const response = await fetch(`${API_BASE}/ai/insights`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       if (!response.ok) throw new Error(`HTTP ${response.status}`)
@@ -34,8 +35,9 @@ function AIInsights() {
     if (!testQuery.trim()) return
     
     try {
+      const API_BASE = import.meta.env.PROD ? '/api' : 'http://localhost:3001/api'
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:3001/api/ai/analyze', {
+      const response = await fetch(`${API_BASE}/ai/analyze`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

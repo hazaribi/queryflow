@@ -11,12 +11,13 @@ function Reports() {
 
   const fetchReports = async (retries = 3) => {
     try {
+      const API_BASE = import.meta.env.PROD ? '/api' : 'http://localhost:3001/api'
       const token = localStorage.getItem('token')
       const headers = { 'Authorization': `Bearer ${token}` }
       
       const [slaResponse, analyticsResponse] = await Promise.all([
-        fetch('http://localhost:3001/api/reports/sla', { headers }),
-        fetch('http://localhost:3001/api/reports/analytics/advanced', { headers })
+        fetch(`${API_BASE}/reports/sla`, { headers }),
+        fetch(`${API_BASE}/reports/analytics/advanced`, { headers })
       ])
       
       if (!slaResponse.ok || !analyticsResponse.ok) {
@@ -38,8 +39,9 @@ function Reports() {
 
   const downloadReport = async () => {
     try {
+      const API_BASE = import.meta.env.PROD ? '/api' : 'http://localhost:3001/api'
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:3001/api/reports/export', {
+      const response = await fetch(`${API_BASE}/reports/export`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       

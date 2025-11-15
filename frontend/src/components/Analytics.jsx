@@ -11,8 +11,9 @@ function Analytics() {
 
   const fetchAnalytics = async (retries = 3) => {
     try {
+      const API_BASE = import.meta.env.PROD ? '/api' : 'http://localhost:3001/api'
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:3001/api/queries/analytics', {
+      const response = await fetch(`${API_BASE}/queries/analytics`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
       if (!response.ok) throw new Error(`HTTP ${response.status}`)
