@@ -6,7 +6,7 @@ import { createServer } from 'http';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import './config/database.js';
+import { initializeDatabase } from './config/database.js';
 import queriesRouter from './routes/queries.js';
 import usersRouter from './routes/users.js';
 import authRouter from './routes/auth.js';
@@ -19,6 +19,16 @@ dotenv.config();
 const app = express();
 const server = createServer(app);
 const PORT = process.env.PORT || 3001;
+
+// Initialize database and start server
+async function startServer() {
+  try {
+    await initializeDatabase();
+    console.log('Database initialization complete');
+  } catch (error) {
+    console.error('Database initialization failed:', error);
+    process.exit(1);
+  }
 
 // Security middleware
 app.use(helmet());
@@ -52,8 +62,20 @@ app.use('/api/ai', aiRouter);
 // Serve frontend in production
 if (process.env.NODE_ENV === 'production') {
   const __dirname = path.dirname(fileURLToPath(import.meta.url));
-  app.use(express.static(path.join(__dirname, '../frontend/dist')));
   
+  // Serve static files with proper MIME types
+  app.use(express.static(path.join(__dirname, '../frontend/dist'), {
+    setHeaders: (res, path) => {
+      if (path.endsWith('.css')) {
+        res.setHeader('Content-Type', 'text/css');
+      }
+      if (path.endsWith('.js')) {
+        res.setHeader('Content-Type', 'application/javascript');
+      }
+    }
+  }));
+  
+  // Handle SPA routing
   app.get('*', (req, res) => {
     if (req.path.startsWith('/api/')) {
       return res.status(404).json({ error: 'API endpoint not found' });
@@ -67,10 +89,14 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-server.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-  console.log(`WebSocket server ready`);
-});
+  server.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`WebSocket server ready`);
+  });
+}
+
+// Start the server
+startServer();
 
 // Graceful shutdown
 process.on('SIGTERM', () => {

@@ -7,16 +7,23 @@ const __dirname = dirname(__filename);
 
 const dbPath = join(__dirname, '..', 'data', 'queries.db');
 
-export const db = new sqlite3.Database(dbPath, (err) => {
-  if (err) {
-    console.error('Error opening database:', err.message);
-  } else {
-    console.log('Connected to SQLite database');
-    initializeDatabase();
-  }
-});
+let db;
 
-function initializeDatabase() {
+export const initializeDatabase = () => {
+  return new Promise((resolve, reject) => {
+    db = new sqlite3.Database(dbPath, (err) => {
+      if (err) {
+        console.error('Error opening database:', err.message);
+        reject(err);
+      } else {
+        console.log('Connected to SQLite database');
+        setupTables(resolve, reject);
+      }
+    });
+  });
+};
+
+function setupTables(resolve, reject) {
   db.serialize(() => {
     // Users table
     db.run(`CREATE TABLE IF NOT EXISTS users (
@@ -65,6 +72,17 @@ function initializeDatabase() {
       ('How do I reset my password?', 'email', 'low', 'open', NULL, 'customer1@example.com', 'John Doe'),
       ('Product not working after update!', 'social', 'high', 'open', NULL, 'customer2@example.com', 'Jane Smith'),
       ('When will new features be released?', 'chat', 'medium', 'open', NULL, 'customer3@example.com', 'Bob Wilson'),
-      ('Billing issue - charged twice', 'email', 'high', 'in_progress', 2, 'customer4@example.com', 'Alice Brown')`);
+      ('Billing issue - charged twice', 'email', 'high', 'in_progress', 2, 'customer4@example.com', 'Alice Brown')`, 
+      (err) => {
+        if (err) {
+          console.error('Error inserting sample data:', err.message);
+          reject(err);
+        } else {
+          console.log('Database initialized successfully');
+          resolve();
+        }
+      });
   });
 }
+
+export { db };
