@@ -14,7 +14,8 @@ function Login({ onLogin }) {
       const endpoint = isSignup ? '/signup' : '/login'
       const body = isSignup ? { email, name } : { email }
       
-      const response = await fetch(`http://localhost:3001/api/auth${endpoint}`, {
+      const API_BASE = import.meta.env.PROD ? '/api' : 'http://localhost:3001/api'
+      const response = await fetch(`${API_BASE}/auth${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)

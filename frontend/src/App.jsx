@@ -5,7 +5,7 @@ import Reports from './components/Reports.jsx'
 import AIInsights from './components/AIInsights.jsx'
 import QueryDetails from './components/QueryDetails.jsx'
 
-const API_BASE = process.env.NODE_ENV === 'production' 
+const API_BASE = import.meta.env.PROD 
   ? '/api' 
   : 'http://localhost:3001/api'
 
